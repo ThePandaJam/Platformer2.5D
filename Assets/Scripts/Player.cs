@@ -11,9 +11,10 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _gravity = 1.0f;
     [SerializeField]
-    private float _jumpHeight = 15.0f;
+    private float _jumpHeight = 30.0f;
 
     private float _yVelocity;
+    private bool _canDoubleJump = false;
 
     // Start is called before the first frame update
     void Start()
@@ -36,11 +37,19 @@ public class Player : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 _yVelocity = _jumpHeight;
+                _canDoubleJump = true;
             }
             //(assign y velocity to jump height)
         }
         else
         {
+            //check for double jump
+            //current _yVelocity += jumpheight
+            if (Input.GetKeyDown(KeyCode.Space) && _canDoubleJump)
+            {
+                _yVelocity += _jumpHeight;
+                _canDoubleJump = false;
+            }
             _yVelocity -= _gravity;
         }
 
