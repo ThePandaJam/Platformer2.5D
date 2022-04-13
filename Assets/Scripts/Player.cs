@@ -10,6 +10,10 @@ public class Player : MonoBehaviour
     private float _speed = 5.0f;
     [SerializeField]
     private float _gravity = 1.0f;
+    [SerializeField]
+    private float _jumpHeight = 15.0f;
+
+    private float _yVelocity;
 
     // Start is called before the first frame update
     void Start()
@@ -28,11 +32,20 @@ public class Player : MonoBehaviour
         if (_controller.isGrounded)
         {
             //do nothing, jump later
+            //if space key pressed
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                _yVelocity = _jumpHeight;
+            }
+            //(assign y velocity to jump height)
         }
         else
         {
-            velocity.y -= _gravity;
+            _yVelocity -= _gravity;
         }
+
+        velocity.y = _yVelocity;
+
         _controller.Move(velocity * Time.deltaTime);
     }
 }
