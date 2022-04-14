@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -22,6 +23,9 @@ public class Player : MonoBehaviour
     
     [SerializeField]
     private int _lives = 3;
+
+    [SerializeField]
+    private GameObject _respawnPoint;
     // Start is called before the first frame update
     void Start()
     {
@@ -34,17 +38,21 @@ public class Player : MonoBehaviour
         }
         _uiManager.UpdateCoinDisplay(_coinCount);
         _uiManager.UpdateLivesDisplay(_lives);
+
+        transform.position = new Vector3(-6.5f, -1.5f, 0f);
     }
 
     // Update is called once per frame
     void Update()
     {
+        Vector3 currentPosition = transform.position;
+
         float horizontalInput = Input.GetAxis("Horizontal");
         Vector3 direction = new Vector3(horizontalInput, 0, 0);
         Vector3 velocity = direction * _speed;
 
         //if grounded
-        if (_controller.isGrounded)
+        if (_controller.isGrounded || transform.position == new Vector3(-6.5f, -1.5f, 0f))
         {
             //do nothing, jump later
             //if space key pressed
@@ -68,8 +76,12 @@ public class Player : MonoBehaviour
         }
 
         velocity.y = _yVelocity;
+        if(transform.position != new Vector3(-6.5f, -1.5f, 0f))
+        {
+            _controller.Move(velocity * Time.deltaTime);
+        }
+        
 
-        _controller.Move(velocity * Time.deltaTime);
     }
 
     public void CoinIncrement()
@@ -78,4 +90,25 @@ public class Player : MonoBehaviour
         //update ui with the coins
         _uiManager.UpdateCoinDisplay(_coinCount);
     }
+
+    public void LoseLife()
+    {
+        _lives--;
+        _uiManager.UpdateLivesDisplay(_lives);
+        _yVelocity = 0;
+        Respawn();
+
+        if(_lives < 1)
+        {
+            _lives = 0;
+            _uiManager.UpdateLivesDisplay(_lives);
+            //restart the game
+            SceneManager.LoadScene(0);
+        }
+    }
+    public void Respawn()
+    {
+        transform.position = new Vector3(-6.5f, -1.5f, 0f);
+    }
+
 }
