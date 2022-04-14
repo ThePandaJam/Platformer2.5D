@@ -8,14 +8,15 @@ public class MovingPlatform : MonoBehaviour
     private Transform _targetA, _targetB;
     private float _speed = 2.0f;
     private bool _returnToBase = false;
+    
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if(_returnToBase == false)
         {
@@ -39,5 +40,26 @@ public class MovingPlatform : MonoBehaviour
             _returnToBase = false;
         }
         //  go to point b
+    }
+    //collision detection with player
+    //if collide with player
+    //take player parent == this game object
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.tag == "Player")
+        {
+            other.transform.parent = this.transform;
+        }
+    }
+
+    //exit collision
+    //check if player exited
+    //take the player parent = null
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "Player")
+        {
+            other.transform.parent = null;
+        }
     }
 }
