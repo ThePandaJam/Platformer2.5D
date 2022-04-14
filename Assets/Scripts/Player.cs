@@ -76,6 +76,7 @@ public class Player : MonoBehaviour
         }
 
         velocity.y = _yVelocity;
+        //hacky check for the position -> controller.Move is using the old position of the player before it respawns (?)
         if(transform.position != new Vector3(-6.5f, -1.5f, 0f))
         {
             _controller.Move(velocity * Time.deltaTime);
