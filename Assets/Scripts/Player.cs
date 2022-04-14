@@ -19,6 +19,9 @@ public class Player : MonoBehaviour
     //variable for player coins
     private UIManager _uiManager;
     private int _coinCount = 0;
+    
+    [SerializeField]
+    private int _lives = 3;
     // Start is called before the first frame update
     void Start()
     {
@@ -29,6 +32,8 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("The UI Manager is NULL.");
         }
+        _uiManager.UpdateCoinDisplay(_coinCount);
+        _uiManager.UpdateLivesDisplay(_lives);
     }
 
     // Update is called once per frame
