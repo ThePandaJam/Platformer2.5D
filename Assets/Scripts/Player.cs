@@ -1,6 +1,7 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -19,6 +20,12 @@ public class Player : MonoBehaviour
     //variable for player coins
     private UIManager _uiManager;
     private int _coinCount = 0;
+    
+    [SerializeField]
+    private int _lives = 3;
+
+    [SerializeField]
+    private GameObject _respawnPoint;
     // Start is called before the first frame update
     void Start()
     {
@@ -29,17 +36,23 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("The UI Manager is NULL.");
         }
+        _uiManager.UpdateCoinDisplay(_coinCount);
+        _uiManager.UpdateLivesDisplay(_lives);
+
+        transform.position = _respawnPoint.transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
+        Vector3 currentPosition = transform.position;
+
         float horizontalInput = Input.GetAxis("Horizontal");
         Vector3 direction = new Vector3(horizontalInput, 0, 0);
         Vector3 velocity = direction * _speed;
 
         //if grounded
-        if (_controller.isGrounded)
+        if (_controller.isGrounded || (transform.position == _respawnPoint.transform.position))
         {
             //do nothing, jump later
             //if space key pressed
@@ -49,6 +62,10 @@ public class Player : MonoBehaviour
                 _canDoubleJump = true;
             }
             //(assign y velocity to jump height)
+        }
+        else if (transform.position.y <= -9f){
+            LoseLife();
+            Respawn();
         }
         else
         {
@@ -63,8 +80,13 @@ public class Player : MonoBehaviour
         }
 
         velocity.y = _yVelocity;
+        //hacky check for the position -> controller.Move is using the old position of the player before it respawns (?)
+        if(transform.position != _respawnPoint.transform.position)
+        {
+            _controller.Move(velocity * Time.deltaTime);
+        }
+        
 
-        _controller.Move(velocity * Time.deltaTime);
     }
 
     public void CoinIncrement()
@@ -73,4 +95,25 @@ public class Player : MonoBehaviour
         //update ui with the coins
         _uiManager.UpdateCoinDisplay(_coinCount);
     }
+
+    public void LoseLife()
+    {
+        _lives--;
+        _uiManager.UpdateLivesDisplay(_lives);
+        _yVelocity = 0;
+        Respawn();
+
+        if(_lives < 1)
+        {
+            _lives = 0;
+            _uiManager.UpdateLivesDisplay(_lives);
+            //restart the game
+            SceneManager.LoadScene(0);
+        }
+    }
+    public void Respawn()
+    {
+        transform.position = _respawnPoint.transform.position;
+    }
+
 }
