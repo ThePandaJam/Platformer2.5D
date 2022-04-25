@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -39,7 +39,7 @@ public class Player : MonoBehaviour
         _uiManager.UpdateCoinDisplay(_coinCount);
         _uiManager.UpdateLivesDisplay(_lives);
 
-        transform.position = new Vector3(-6.5f, -1.5f, 0f);
+        transform.position = _respawnPoint.transform.position;
     }
 
     // Update is called once per frame
@@ -52,7 +52,7 @@ public class Player : MonoBehaviour
         Vector3 velocity = direction * _speed;
 
         //if grounded
-        if (_controller.isGrounded || transform.position == new Vector3(-6.5f, -1.5f, 0f))
+        if (_controller.isGrounded || (transform.position == _respawnPoint.transform.position))
         {
             //do nothing, jump later
             //if space key pressed
@@ -62,6 +62,10 @@ public class Player : MonoBehaviour
                 _canDoubleJump = true;
             }
             //(assign y velocity to jump height)
+        }
+        else if (transform.position.y <= -9f){
+            LoseLife();
+            Respawn();
         }
         else
         {
@@ -77,7 +81,7 @@ public class Player : MonoBehaviour
 
         velocity.y = _yVelocity;
         //hacky check for the position -> controller.Move is using the old position of the player before it respawns (?)
-        if(transform.position != new Vector3(-6.5f, -1.5f, 0f))
+        if(transform.position != _respawnPoint.transform.position)
         {
             _controller.Move(velocity * Time.deltaTime);
         }
@@ -109,7 +113,7 @@ public class Player : MonoBehaviour
     }
     public void Respawn()
     {
-        transform.position = new Vector3(-6.5f, -1.5f, 0f);
+        transform.position = _respawnPoint.transform.position;
     }
 
 }
