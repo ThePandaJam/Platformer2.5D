@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class DeadZone : MonoBehaviour
 {
-    //check collision
+    private Vector3 _respawnPoint = new Vector3(-6.5f, 0, 0);
+
     private void OnTriggerEnter(Collider other)
     {
-
+        
         if(other.tag == "Player")
         {
             Debug.Log("Player entered Dead Zone");
@@ -16,6 +17,14 @@ public class DeadZone : MonoBehaviour
             {
                 player.LoseLife();
             }
+
+            CharacterController cc = other.GetComponent<CharacterController>();
+            if (cc != null)
+            {
+                cc.enabled = false;
+            }
+            other.transform.position = _respawnPoint;
+            StartCoroutine(CCENableRoutine(cc));
         }
     }
 
