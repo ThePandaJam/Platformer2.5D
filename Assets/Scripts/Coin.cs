@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Coin : MonoBehaviour
 {
-    //onTriggerEnter
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Player")
@@ -17,7 +16,4 @@ public class Coin : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
-    //increment coin count in player
-    //notify UI via player
-    //destroy coin object
 }
