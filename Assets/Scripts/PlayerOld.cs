@@ -1,9 +1,9 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Player : MonoBehaviour
+public class PlayerOld : MonoBehaviour
 {
     private CharacterController _controller;
 
@@ -12,16 +12,14 @@ public class Player : MonoBehaviour
     
     [SerializeField] private float _jumpHeight = 30.0f;
     private bool _canDoubleJump = false;
-
     private float _yVelocity;
-
+    
     private UIManager _uiManager;
     private int _coinCount = 0;
     
     [SerializeField] private int _lives = 3;
-    private bool _isPlayerDying = false;
+    [SerializeField] private GameObject _respawnPoint;
 
-    [SerializeField] private Vector3 _respawnPoint = new Vector3(-6.5f, 0, 0);
     void Start()
     {
         _controller = GetComponent<CharacterController>();
@@ -34,7 +32,7 @@ public class Player : MonoBehaviour
         _uiManager.UpdateCoinDisplay(_coinCount);
         _uiManager.UpdateLivesDisplay(_lives);
 
-        //transform.position = _respawnPoint;
+        //transform.position = _respawnPoint.transform.position;
     }
 
     void Update()
@@ -42,20 +40,24 @@ public class Player : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         Vector3 direction = new Vector3(horizontalInput, 0, 0);
         Vector3 velocity = direction * _speed;
-
-        if (_controller.isGrounded || (transform.position == _respawnPoint))
+        
+        if (_controller.isGrounded /*|| (transform.position == _respawnPoint.transform.position)*/)
         {
+            //do nothing, jump later
+            //if space key pressed
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 _yVelocity = _jumpHeight;
                 _canDoubleJump = true;
             }
+            //(assign y velocity to jump height)
         }
         else if (transform.position.y <= -9f){
-            LoseLife();
+            //LoseLife();
             Respawn();
         }
         else
+        //check for double jump or fall 
         {
             if (Input.GetKeyDown(KeyCode.Space) && _canDoubleJump)
             {
@@ -64,54 +66,43 @@ public class Player : MonoBehaviour
             }
             _yVelocity -= _gravity;
         }
-        
-        /*if (!_isPlayerDying || (transform.position == _respawnPoint))
-        { 
-            _yVelocity -= _gravity;
-        }*/
-        //falling off world
-        /*if (!_isPlayerDying && (transform.position.y <= -9f)){
-            _yVelocity = 0;
-            _isPlayerDying = true;
-            Respawn();
-            //LoseLife();
-        }*/
 
         velocity.y = _yVelocity;
-        if (transform.position != _respawnPoint)
+        //hacky check for the position -> controller.Move is using the old position of the player before it respawns (?)
+        if(transform.position != _respawnPoint.transform.position)
         {
             _controller.Move(velocity * Time.deltaTime);
         }
+        
+
     }
 
     public void CoinIncrement()
     {
         _coinCount++;
+        //update ui with the coins
         _uiManager.UpdateCoinDisplay(_coinCount);
     }
 
-    void LoseLife()
+    public void LoseLife()
     {
         _lives--;
         _uiManager.UpdateLivesDisplay(_lives);
         _yVelocity = 0;
-
-        Respawn();
+        //Respawn();
 
         if(_lives < 1)
         {
             _lives = 0;
             _uiManager.UpdateLivesDisplay(_lives);
+            //restart the game
             SceneManager.LoadScene(0);
         }
-        
     }
-    void Respawn()
+    public void Respawn()
     {
-        
-        transform.position = _respawnPoint;
-        
-        //_isPlayerDying = false;
+        transform.position = _respawnPoint.transform.position;
+        LoseLife();
     }
 
 }
