@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+//IMPORTANT NOTE: For proper functionality, ensure "Auto Sync Transforms" is ON:
+// Edit > Project Settings > Physics
+// check the box “Auto Sync Transforms”
 public class Player : MonoBehaviour
 {
     private CharacterController _controller;
@@ -19,7 +22,6 @@ public class Player : MonoBehaviour
     private int _coinCount = 0;
     
     [SerializeField] private int _lives = 3;
-    private bool _isPlayerDying = false;
 
     [SerializeField] private Vector3 _respawnPoint = new Vector3(-6.5f, 0, 0);
     void Start()
@@ -34,7 +36,7 @@ public class Player : MonoBehaviour
         _uiManager.UpdateCoinDisplay(_coinCount);
         _uiManager.UpdateLivesDisplay(_lives);
 
-        //transform.position = _respawnPoint;
+        transform.position = _respawnPoint;
     }
 
     void Update()
@@ -43,7 +45,7 @@ public class Player : MonoBehaviour
         Vector3 direction = new Vector3(horizontalInput, 0, 0);
         Vector3 velocity = direction * _speed;
 
-        if (_controller.isGrounded || (transform.position == _respawnPoint))
+        if (_controller.isGrounded)
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -52,7 +54,6 @@ public class Player : MonoBehaviour
             }
         }
         else if (transform.position.y <= -9f){
-            LoseLife();
             Respawn();
         }
         else
@@ -65,23 +66,8 @@ public class Player : MonoBehaviour
             _yVelocity -= _gravity;
         }
         
-        /*if (!_isPlayerDying || (transform.position == _respawnPoint))
-        { 
-            _yVelocity -= _gravity;
-        }*/
-        //falling off world
-        /*if (!_isPlayerDying && (transform.position.y <= -9f)){
-            _yVelocity = 0;
-            _isPlayerDying = true;
-            Respawn();
-            //LoseLife();
-        }*/
-
         velocity.y = _yVelocity;
-        if (transform.position != _respawnPoint)
-        {
-            _controller.Move(velocity * Time.deltaTime);
-        }
+        _controller.Move(velocity * Time.deltaTime);
     }
 
     public void CoinIncrement()
@@ -95,9 +81,7 @@ public class Player : MonoBehaviour
         _lives--;
         _uiManager.UpdateLivesDisplay(_lives);
         _yVelocity = 0;
-
-        Respawn();
-
+        
         if(_lives < 1)
         {
             _lives = 0;
@@ -108,10 +92,8 @@ public class Player : MonoBehaviour
     }
     void Respawn()
     {
-        
+        LoseLife();
         transform.position = _respawnPoint;
-        
-        //_isPlayerDying = false;
     }
 
 }
